@@ -16,3 +16,7 @@ target_link_libraries(test ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 # chap_2_1_background
 add_executable(chap2_1_background chap2_1_background.cpp)
 target_link_libraries(chap2_1_background ${GLUT_LIBRARY} ${OPENGL_LIBRARY} -lglfw -lGLEW)
+
+# chap_2_2_drawPoint
+add_executable(chap2_2_drawPoint chap2_2_drawPoint.cpp)
+target_link_libraries(chap2_2_drawPoint ${OPENGL_LIBRARY} -lglfw -lGLEW)
