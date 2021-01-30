@@ -15,3 +15,8 @@
 Note that there is an error occurs after glewInit(), but it doesn't matters because we can find the declaration on the [website](https://www.khronos.org/opengl/wiki/OpenGL_Loading_Library).
 
 
+4. **readShaderSource**
+
+We add a funtion to read shader source from files which is useful in the next program. And you can modified the position and color in the config files.
+
+5. 

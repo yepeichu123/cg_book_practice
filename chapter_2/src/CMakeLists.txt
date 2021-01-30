@@ -36,3 +36,13 @@ target_link_libraries(chap2_3_detectException
     -lglfw 
     -lGLEW
 )
+
+# chap_2_4_readShaderSource
+add_executable(chap2_4_readShaderSource
+    chap2_4_readShaderSource.cpp
+)
+target_link_libraries(chap2_4_readShaderSource
+    ${OPENGL_LIBRARY}
+    -lglfw 
+    -lGLEW
+)

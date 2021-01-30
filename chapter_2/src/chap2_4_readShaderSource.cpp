@@ -2,14 +2,16 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <memory>
-#include "exceptionCatch.h"
+#include <string>
+#include <fstream>
 using namespace std;
 
 #define numVAOs 1
-
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLfloat pointSize = 30.0;
+
+string readShaderSource(const string& filePath);
 
 GLuint createShaderProgram();
 
@@ -29,7 +31,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     // initialize windows
-    GLFWwindow* window = glfwCreateWindow(600, 600, "chap2_3_detectException", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "chap2_4_readShaderSource", NULL, NULL);
     // connect the window with opengl
     glfwMakeContextCurrent(window);
 
@@ -66,49 +68,40 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-GLuint createShaderProgram() {
-    // exception parameters
-    GLint vertCompiled;
-    GLint fragCompiled;
-    GLint linked;
-    shared_ptr<ExceptionCatch> pExcepCatch = make_shared<ExceptionCatch>();
-    
-    const char* vshaderSource = 
-        "#version 430       \n"
-        "void main(void)    \n"
-        "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+string readShaderSource(const string& filePath) {
+    string content;
+    ifstream fileStream(filePath, ios::in);
+    if (!fileStream.is_open()) {
+        cout << "Failed to read data from file: \n" << filePath << "\n Please make sure you are in the root dir." << endl;
+        exit(EXIT_FAILURE);
+    }
 
-    const char* fshaderSource = 
-        "#version 430       \n"
-        "out vec4 color;    \n"
-        "void main(void)    \n"
-        "{ color = vec4(0.0, 1.0, 0.0, 1.0); }";
+    string line = "";
+    while (!fileStream.eof()) {
+        getline(fileStream, line);
+        content.append(line + "\n");
+    }
+    fileStream.close();
+    return content;
+}
+
+GLuint createShaderProgram() {  
+    string vshaderSource = readShaderSource("./config/vertShader.glsl");
+    string fshaderSource = readShaderSource("./config/fragShader.glsl");
+    const char *vshaderSourceSrc = vshaderSource.c_str();
+    const char *fshaderSourceSrc = fshaderSource.c_str();
 
     // create the vertex shader and fragment shader
     GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
 
     // load the char into two shaders and compile
-    glShaderSource(vShader, 1, &vshaderSource, NULL);
-    glShaderSource(fShader, 1, &fshaderSource, NULL);
+    glShaderSource(vShader, 1, &vshaderSourceSrc, NULL);
+    glShaderSource(fShader, 1, &fshaderSourceSrc, NULL);
 
     // catch compiling error
     glCompileShader(vShader);
-    pExcepCatch->checkOpenGLError();
-    glGetShaderiv(vShader, GL_COMPILE_STATUS, &vertCompiled);
-    if (vertCompiled != 1) {
-        cout << "vertex compilation failed." << endl;
-        pExcepCatch->printShaderLog(vShader);
-    }
-
     glCompileShader(fShader);
-    pExcepCatch->checkOpenGLError();
-    glGetShaderiv(fShader, GL_COMPILE_STATUS, &fragCompiled);
-    if (fragCompiled != 1) {
-        cout << "fragment compilation failed." << endl;
-        pExcepCatch->printShaderLog(fShader);
-    }
-
 
     // create the shader program
     GLuint vfProgram = glCreateProgram();
@@ -118,12 +111,6 @@ GLuint createShaderProgram() {
     glAttachShader(vfProgram, vShader);
     glAttachShader(vfProgram, fShader);
     glLinkProgram(vfProgram);
-    pExcepCatch->checkOpenGLError();
-    glGetProgramiv(vfProgram, GL_LINK_STATUS, &linked);
-    if (linked != 1) {
-        cout << "linked failed." << endl;
-        pExcepCatch->printProgramLog(vfProgram);
-    }
 
     return vfProgram;
 }
