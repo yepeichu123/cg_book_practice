@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <stdlib.h>
+#include <memory>
+#include <string>
+#include "saveImage.h"
 using namespace std;
 
 #define numVAOs 1
@@ -12,12 +15,15 @@ GLfloat incRadius = 5.0;
 GLfloat pointSize = 30.0;
 GLfloat maxPointSize = 300.0;
 GLfloat minPointSize = 5.0;
+bool saveImg = false;
 
 GLuint createShaderProgram();
 
 void init(GLFWwindow* window);
 
 void display(GLFWwindow* window, double currentTime);
+
+// void saveImage();
 
 int main(int argc, char** argv) {
     if (!glfwInit()) {
@@ -26,10 +32,12 @@ int main(int argc, char** argv) {
     }
 
     cout << "Initialize windows..." << endl;
-    // opengl version is 4.3
+    // opengl version is 4.3.0
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // initialize windows
     GLFWwindow* window = glfwCreateWindow(600, 600, "chap2_2_drawPoint", NULL, NULL);
+    // connect the window with opengl
     glfwMakeContextCurrent(window);
 
     cout << "Initialize GLEW..." << endl;
@@ -41,15 +49,18 @@ int main(int argc, char** argv) {
     }
 
     cout << "Setup swap interval..." << endl;
-    glfwSwapInterval(5);
+    glfwSwapInterval(3);
 
     cout << "Enter init..." << endl;
     init(window);
 
     cout << "Enter loop shader..." << endl;
     while (!glfwWindowShouldClose(window)) {
+        // draw somethings into the buffer
         display(window, glfwGetTime());
+        // swap buffers means that updates window
         glfwSwapBuffers(window);
+        // deal with poll events
         glfwPollEvents();
     }
 
@@ -72,16 +83,20 @@ GLuint createShaderProgram() {
         "out vec4 color;    \n"
         "void main(void)    \n"
         "{ if (gl_FragCoord.x < 300) color = vec4(0.0, 1.0, 0.0, 1.0); else color = vec4(1.0, 0.0, 0.0, 1.0); }";
+        // "{ color = vec4(1.0, 1.0, 1.0, 1.0); }";
 
+    // create the vertex shader and fragment shader
     GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
-    GLuint vfProgram = glCreateProgram();
-
+    // load the char into two shaders and compile
     glShaderSource(vShader, 1, &vshaderSource, NULL);
     glShaderSource(fShader, 1, &fshaderSource, NULL);
     glCompileShader(vShader);
     glCompileShader(fShader);
 
+    // create the shader program
+    GLuint vfProgram = glCreateProgram();
+    // load two shaders into program
     glAttachShader(vfProgram, vShader);
     glAttachShader(vfProgram, fShader);
     glLinkProgram(vfProgram);
@@ -120,4 +135,12 @@ void display(GLFWwindow* window, double currentTime) {
 
     // draw point
     glDrawArrays(GL_POINTS, 0, 1);
+
+    // save image 
+    if (!saveImg) {
+        shared_ptr<SaveImage> psaveImg = make_shared<SaveImage>();
+        string outputPath = "./outputPath.png";
+        psaveImg->runSaveImage(outputPath);
+        saveImg = true;
+    }
 }

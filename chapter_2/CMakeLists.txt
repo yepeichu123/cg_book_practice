@@ -1,22 +1,21 @@
 cmake_minimum_required(VERSION 2.8)
 project(chapter_2)
 
+set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11")
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
 find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIR})
-
+# if you want to save image
+find_package(OpenCV REQUIRED)
+# if you want to run test code
 find_package(GLUT REQUIRED)
-include_directories(${GLUT_INCLUDE_DIR})
 
-set(CMAKE_CXX_FLAGS "-g -Wall")
+include_directories(
+    ${OPENGL_INCLUDE_DIR}
+    ${GLUT_INCLUDE_DIR}
+    ${OpenCV_INCLUDE_DIR}
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/include
+)
 
-# test
-add_executable(test test.cpp)
-target_link_libraries(test ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
-
-# chap_2_1_background
-add_executable(chap2_1_background chap2_1_background.cpp)
-target_link_libraries(chap2_1_background ${GLUT_LIBRARY} ${OPENGL_LIBRARY} -lglfw -lGLEW)
-
-# chap_2_2_drawPoint
-add_executable(chap2_2_drawPoint chap2_2_drawPoint.cpp)
-target_link_libraries(chap2_2_drawPoint ${OPENGL_LIBRARY} -lglfw -lGLEW)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src)
