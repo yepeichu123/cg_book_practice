@@ -28,7 +28,7 @@ void display(GLFWwindow* window, double currentTime) {
     if (!saveImg) {
         // saveImage();
         shared_ptr<SaveImage> psaveImg = make_shared<SaveImage>();
-        string outputPath = "./outputPath.png";
+        string outputPath = "./result/background.png";
         psaveImg->runSaveImage(outputPath);
         saveImg = true;
     }

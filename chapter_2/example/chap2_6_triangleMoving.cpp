@@ -2,16 +2,17 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <stdlib.h>
+#include <memory>
+#include "readShaderSource.h"
+#include "saveImage.h"
 using namespace std;
 
 #define numVAOs 1
 
 GLuint renderingProgram;
 GLuint vao[numVAOs];
-GLfloat incRadius = 5.0;
-GLfloat pointSize = 30.0;
-GLfloat maxPointSize = 300.0;
-GLfloat minPointSize = 5.0;
+GLfloat x = 0.0;
+GLfloat inc = 0.01;
 
 GLuint createShaderProgram();
 
@@ -62,23 +63,18 @@ int main(int argc, char** argv) {
 }
 
 GLuint createShaderProgram() {
-    const char* vshaderSource = 
-        "#version 430       \n"
-        "void main(void)    \n"
-        "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
-
-    const char* fshaderSource = 
-        "#version 430       \n"
-        "out vec4 color;    \n"
-        "void main(void)    \n"
-        "{ if (gl_FragCoord.x < 300) color = vec4(0.0, 1.0, 0.0, 1.0); else color = vec4(1.0, 0.0, 0.0, 1.0); }";
+    shared_ptr<ReadShaderSource> pReadShaderSource = make_shared<ReadShaderSource>();
+    string vshaderSource = pReadShaderSource->runReadShaderSource("./config/vertShaderTriMoving.glsl");
+    string fshaderSource = pReadShaderSource->runReadShaderSource("./config/fragShader.glsl");
+    const char* vshaderSourceStr = vshaderSource.c_str();
+    const char* fshaderSourceStr = fshaderSource.c_str();
 
     GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
     GLuint vfProgram = glCreateProgram();
 
-    glShaderSource(vShader, 1, &vshaderSource, NULL);
-    glShaderSource(fShader, 1, &fshaderSource, NULL);
+    glShaderSource(vShader, 1, &vshaderSourceStr, NULL);
+    glShaderSource(fShader, 1, &fshaderSourceStr, NULL);
     glCompileShader(vShader);
     glCompileShader(fShader);
 
@@ -107,17 +103,34 @@ void display(GLFWwindow* window, double currentTime) {
 
     glUseProgram(renderingProgram);
 
-    // update size of point
-    pointSize += incRadius;
-    if (pointSize >= maxPointSize) {
-        incRadius = -5.0f;
+    // update position
+    x += inc;
+    if (x > 1.0f) {
+        inc = -0.01f;
     }
-    if (pointSize <= minPointSize) {
-        incRadius = 5.0f;
+    else if (x < -1.0f) {
+        inc = 0.01f;
     }
-    cout << "Point size: " << pointSize << endl;
-    glPointSize(pointSize);
+    // get the pointer "offset" which is in the config file
+    GLuint offsetLoc = glGetUniformLocation(renderingProgram, "offset");
+    // pass the value "x" to the "offset" to update the triangle
+    glProgramUniform1f(renderingProgram, offsetLoc, x);
 
-    // draw point
-    glDrawArrays(GL_POINTS, 0, 1);
+    // draw square, please pay attention to the parameters
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    if (abs(x - 0.5) < 0.01 || abs(x - 0.0) < 0.01 || abs(x + 0.5) < 0.01) {
+        shared_ptr<SaveImage> psaveImg = make_shared<SaveImage>();
+        string outputPath = "./result/triangleMoving";
+        if (abs(x - 0.5) < 0.01) {
+            outputPath += "Right.png";
+        }
+        else if (abs(x + 0.5) < 0.01) {
+            outputPath += "Left.png";
+        }
+        else if (abs(x - 0.0) < 0.01) {
+            outputPath += "Center.png";
+        }
+        psaveImg->runSaveImage(outputPath);
+    }
 }

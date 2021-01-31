@@ -3,6 +3,7 @@ project(chapter_2)
 
 set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 find_package(OpenGL REQUIRED)
 # if you want to save image
@@ -19,3 +20,4 @@ include_directories(
 )
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/example)

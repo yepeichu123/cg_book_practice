@@ -1,21 +1,18 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <stdlib.h>
 #include <memory>
 #include <string>
-#include "saveImage.h"
+#include <fstream>
+#include "readShaderSource.h"
 using namespace std;
 
 #define numVAOs 1
-
 GLuint renderingProgram;
 GLuint vao[numVAOs];
-GLfloat incRadius = 5.0;
 GLfloat pointSize = 30.0;
-GLfloat maxPointSize = 300.0;
-GLfloat minPointSize = 5.0;
-bool saveImg = false;
+
+// string readShaderSource(const string& filePath);
 
 GLuint createShaderProgram();
 
@@ -23,7 +20,6 @@ void init(GLFWwindow* window);
 
 void display(GLFWwindow* window, double currentTime);
 
-// void saveImage();
 
 int main(int argc, char** argv) {
     if (!glfwInit()) {
@@ -36,20 +32,21 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     // initialize windows
-    GLFWwindow* window = glfwCreateWindow(600, 600, "chap2_2_drawPoint", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "chap2_4_readShaderSource", NULL, NULL);
     // connect the window with opengl
     glfwMakeContextCurrent(window);
 
     cout << "Initialize GLEW..." << endl;
     // used for generate vertex
     glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
         cout << "failed to initialize GLEW..." << endl;
         exit(EXIT_FAILURE);
     }
 
     cout << "Setup swap interval..." << endl;
-    glfwSwapInterval(3);
+    glfwSwapInterval(1);
 
     cout << "Enter init..." << endl;
     init(window);
@@ -72,31 +69,47 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-GLuint createShaderProgram() {
-    const char* vshaderSource = 
-        "#version 430       \n"
-        "void main(void)    \n"
-        "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+// string readShaderSource(const string& filePath) {
+//     string content;
+//     ifstream fileStream(filePath, ios::in);
+//     if (!fileStream.is_open()) {
+//         cout << "Failed to read data from file: \n" << filePath << "\n Please make sure you are in the root dir." << endl;
+//         exit(EXIT_FAILURE);
+//     }
 
-    const char* fshaderSource = 
-        "#version 430       \n"
-        "out vec4 color;    \n"
-        "void main(void)    \n"
-        "{ if (gl_FragCoord.x < 300) color = vec4(0.0, 1.0, 0.0, 1.0); else color = vec4(1.0, 0.0, 0.0, 1.0); }";
-        // "{ color = vec4(1.0, 1.0, 1.0, 1.0); }";
+//     string line = "";
+//     while (!fileStream.eof()) {
+//         getline(fileStream, line);
+//         content.append(line + "\n");
+//     }
+//     fileStream.close();
+//     return content;
+// }
+
+GLuint createShaderProgram() {  
+    shared_ptr<ReadShaderSource> pReadShaderSource = make_shared<ReadShaderSource>();
+    string vshaderSource = pReadShaderSource->runReadShaderSource("./config/vertShader.glsl");
+    string fshaderSource = pReadShaderSource->runReadShaderSource("./config/fragShader.glsl");
+    const char *vshaderSourceSrc = vshaderSource.c_str();
+    const char *fshaderSourceSrc = fshaderSource.c_str();
 
     // create the vertex shader and fragment shader
     GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
+
     // load the char into two shaders and compile
-    glShaderSource(vShader, 1, &vshaderSource, NULL);
-    glShaderSource(fShader, 1, &fshaderSource, NULL);
+    glShaderSource(vShader, 1, &vshaderSourceSrc, NULL);
+    glShaderSource(fShader, 1, &fshaderSourceSrc, NULL);
+
+    // catch compiling error
     glCompileShader(vShader);
     glCompileShader(fShader);
 
     // create the shader program
     GLuint vfProgram = glCreateProgram();
+
     // load two shaders into program
+    // catch linking error
     glAttachShader(vfProgram, vShader);
     glAttachShader(vfProgram, fShader);
     glLinkProgram(vfProgram);
@@ -105,12 +118,9 @@ GLuint createShaderProgram() {
 }
 
 void init(GLFWwindow* window) {
-
     renderingProgram = createShaderProgram();
-
     // should add GLEW initialization especially glewExperimental
     glGenVertexArrays(numVAOs, vao);
-
     glBindVertexArray(vao[0]);
 }
 
@@ -122,25 +132,8 @@ void display(GLFWwindow* window, double currentTime) {
 
     glUseProgram(renderingProgram);
 
-    // update size of point
-    pointSize += incRadius;
-    if (pointSize >= maxPointSize) {
-        incRadius = -5.0f;
-    }
-    if (pointSize <= minPointSize) {
-        incRadius = 5.0f;
-    }
-    cout << "Point size: " << pointSize << endl;
     glPointSize(pointSize);
 
     // draw point
     glDrawArrays(GL_POINTS, 0, 1);
-
-    // save image 
-    if (!saveImg) {
-        shared_ptr<SaveImage> psaveImg = make_shared<SaveImage>();
-        string outputPath = "./outputPath.png";
-        psaveImg->runSaveImage(outputPath);
-        saveImg = true;
-    }
 }

@@ -6,7 +6,13 @@
    
 2. draw a point with changing size
 
-3. draw a triangle
+3. detectException
+
+4. readShaderSource
+
+5. drawTriangle
+
+6. triangleMoving
 
 
 **To run the code, we should install the two library**:
