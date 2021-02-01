@@ -36,3 +36,10 @@
 
 **There are some problems about glew, which can visit the [website](https://www.khronos.org/opengl/wiki/OpenGL_Loading_Library)**.
 
+
+## chapter 3
+
+1. transformPoint
+
+> Note that we need glm to define the data type.
+
