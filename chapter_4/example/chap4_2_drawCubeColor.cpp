@@ -11,7 +11,7 @@ using namespace std;
 // vertex array object
 #define numVAOs 1
 // vertex buffer object
-#define numVBOs 2
+#define numVBOs 1
 // rendering program ID
 GLuint renderingProgram;
 GLuint vao[numVAOs];
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    GLFWwindow* window = glfwCreateWindow(600, 600, "chapter4_1_drawCube", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "chapter4_2_drawCubeColor", NULL, NULL);
     glfwMakeContextCurrent(window);
 
     cout << "Enter GLEW initialization..." << endl;
@@ -119,7 +119,15 @@ void setupVertices() {
 
 void init(GLFWwindow* window) {
     // create shader program which reads shader from config files and compiles shaders
-    renderingProgram = pUtils->runCreateShaderProgram(string("./config/vertShader.glsl"), string("./config/fragShader.glsl"));
+    renderingProgram = pUtils->runCreateShaderProgram(
+        string("./config/vertShaderColor.glsl"), string("./config/fragShaderColor.glsl"));
+
+    // construct the perspective matrix
+    glfwGetFramebufferSize(window, &width, &height);
+    aspect = (float)width / (float)height;
+
+    // 1.0472 radians = 60 degrees
+    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 
     // initialize camera and cube position
     cameraX = 0.0f;
@@ -144,12 +152,6 @@ void display(GLFWwindow* window, double currentTime) {
     mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
     projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
-    // construct the perspective matrix
-    glfwGetFramebufferSize(window, &width, &height);
-    aspect = (float)width / (float)height;
-    // 1.0472 radians = 60 degrees
-    pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
-
     // construct view matrix, model matrix and view-model matrix
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
     mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
@@ -161,7 +163,7 @@ void display(GLFWwindow* window, double currentTime) {
 
     // connect VBO with shader
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
     glEnableVertexAttribArray(0);
 
     // modify OpenGL setting and draw model

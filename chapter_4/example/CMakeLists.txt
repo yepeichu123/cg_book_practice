@@ -1,9 +1,23 @@
 
-add_executable(chap4_1_drawCube chap4_1_drawCube.cpp)
-target_link_libraries(chap4_1_drawCube
+set(LINK_LIBS 
     ${OPENGL_LIBRARY}
     -lGLEW
     -lglfw
     ${OpenCV_LIBS}
     Utils
+)
+
+add_executable(chap4_1_drawCube chap4_1_drawCube.cpp)
+target_link_libraries(chap4_1_drawCube
+    ${LINK_LIBS}
+)
+
+add_executable(chap4_2_drawCubeColor chap4_2_drawCubeColor.cpp)
+target_link_libraries(chap4_2_drawCubeColor
+    ${LINK_LIBS}
+)
+
+add_executable(chap4_3_drawCubeRotate chap4_3_drawCubeRotate.cpp)
+target_link_libraries(chap4_3_drawCubeRotate
+    ${LINK_LIBS}
 )
