@@ -44,4 +44,9 @@ In this section, we replace "glDrawArrays" with "glDrawArraysInstanced" to creat
 ![drawMultipleCubesInstance_3](result/drawMultipleCubesInstance_3.png)
 
 
-6. 
+6. **drawMultipleGeometries**
+
+We use two buffers to save cube and pyramid. Note that we should declear two model vertices in init() function. And transform the view-model matrix to the vertices shader.
+
+![drawMultipleGeometries](result/drawMultipleGeometries_1.png)
+

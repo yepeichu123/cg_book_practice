@@ -56,4 +56,6 @@
 
 5. drawMultipleCubesInstance
 
+6. drawMultipleGeometries
+
 > Note that we can modify the camera position(bigger z) to see more things.

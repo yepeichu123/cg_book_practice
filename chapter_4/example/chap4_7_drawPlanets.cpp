@@ -6,6 +6,7 @@
 #include "utils.h"
 #include <memory>
 #include <iostream>
+#include <stack>
 using namespace std;
 
 // vertex array object
@@ -19,15 +20,13 @@ GLuint vbo[numVBOs];
 
 // camera position
 float cameraX, cameraY, cameraZ;
-float cubeLocX, cubeLocY, cubeLocZ;
-float pyramidLocX, pyramidLocY, pyramidLocZ;
 
 // data is used in display function
 GLuint mvLoc, projLoc, tfLoc;
 int width, height;
 float aspect;
-glm::mat4 pMat, vMat, mMat, mvMat, tMat, rMat;
-float timeFactor;
+glm::mat4 pMat, vMat;
+stack<glm::mat4> mvStack;
 
 // save image flag and index 
 GLuint indexSaveImg = 0;
@@ -71,12 +70,12 @@ int main(int argc, char** argv) {
     // setup swap interval
     glfwSwapInterval(1);
 
+    // auto-adjust window size
+    glfwSetWindowSizeCallback(window, windowSizeCallback);
+
     cout << "Initialize window..." << endl;
     // initialize the shader program
     init(window);
-
-    // auto-adjust window size
-    glfwSetWindowSizeCallback(window, windowSizeCallback);
 
     cout << "Enter loop..." << endl;
     // main shader loop
@@ -167,15 +166,7 @@ void init(GLFWwindow* window) {
     // initialize camera and cube position
     cameraX = 0.0f;
     cameraY = 0.0f;
-    cameraZ = 8.0f;
-
-    pyramidLocX = 0.0f;
-    pyramidLocY = 0.0f;
-    pyramidLocZ = 0.0f;
-
-    cubeLocX = 2.0f;
-    cubeLocY = 2.0f;
-    cubeLocZ = 0.0f;
+    cameraZ = 12.0f;
 
     setupVertices();
 }
@@ -192,50 +183,73 @@ void display(GLFWwindow* window, double currentTime) {
     // get MV matrix and project matrix 
     mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
     projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
 
     // construct view matrix, model matrix and view-model matrix
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
+    mvStack.push(vMat);
 
-    // cube
+    // pyramid --- which stands for sun
     // construct view-model matrix
-    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-    mvMat = vMat * mMat;
+    mvStack.push(mvStack.top());
+    mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));  // translation
+    mvStack.push(mvStack.top());
+    mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));     // translation + rotation
 
     // transform perspective matrix and MV matrix to uniform values
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-
+    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvStack.top()));
     // connect VBO with shader
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    // modify OpenGL setting and draw model
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDrawArrays(GL_TRIANGLES, 0, 18);
+    mvStack.pop();
+
+    // cube --- which stands for planets
+    // construct view-model matrix
+    mvStack.push(mvStack.top());
+    mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(sin((float)currentTime)*4.0f, 0.0f, cos((float)currentTime)*4.0f));
+    mvStack.push(mvStack.top());
+    mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvStack.top()));
     glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    mvStack.pop();
 
-    // modify OpenGL setting and draw model
+    // small cube --- which stands for moon
+    // construct view-model matrix
+    mvStack.push(mvStack.top());
+    mvStack.top() *= glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, sin((float)currentTime)*2.0, cos((float)currentTime)*2.0));
+    mvStack.top() *= glm::rotate(glm::mat4(1.0f), (float)currentTime, glm::vec3(0.0f, 0.0f, 1.0f));
+    mvStack.top() *= glm::scale(glm::mat4(1.0f), glm::vec3(0.25f, 0.25f, 0.25f));
+
+    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvStack.top()));
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    
-    // pyramid
-    // construct view-model matrix
-    mMat = glm::translate(glm::mat4(1.0f), glm::vec3(pyramidLocX, pyramidLocY, pyramidLocZ));
-    mvMat = vMat * mMat;
-
-    glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glDrawArrays(GL_TRIANGLES, 0, 18);
+    // delete the redundancy
+    mvStack.pop();  // moon translation
+    mvStack.pop();  // earth translation
+    mvStack.pop();  // sun translation
+    mvStack.pop();  // view matrix
 
     ++indexSaveImg;
     // save image 
     if (indexSaveImg == 5000 && saveImgTimes < 3) {
-        string imgPath = "./result/drawMultipleGeometries";
+        string imgPath = "./result/drawPlanets";
         if (saveImgTimes == 0) {
             imgPath += "_1.png";
         }

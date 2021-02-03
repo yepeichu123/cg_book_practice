@@ -42,3 +42,9 @@ add_executable(chap4_6_drawMultipleGeometries chap4_6_drawMultipleGeometries.cpp
 target_link_libraries(chap4_6_drawMultipleGeometries
     ${LINK_LIBS}
 )
+
+# draw planets
+add_executable(chap4_7_drawPlanets chap4_7_drawPlanets.cpp)
+target_link_libraries(chap4_7_drawPlanets
+    ${LINK_LIBS}
+)
