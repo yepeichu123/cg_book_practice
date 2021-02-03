@@ -13,8 +13,8 @@ CreateShaderProgram::~CreateShaderProgram() {
 GLuint CreateShaderProgram::runCreateShaderProgram(
     const std::string& vshaderSrcPath, const std::string& fshaderSrcPath) {
     std::shared_ptr<ReadShaderSource> pReadShaderSource = std::make_shared<ReadShaderSource>();
-    std::string vshaderSource = pReadShaderSource->runReadShaderSource("./config/vertShader.glsl");
-    std::string fshaderSource = pReadShaderSource->runReadShaderSource("./config/fragShader.glsl");
+    std::string vshaderSource = pReadShaderSource->runReadShaderSource(vshaderSrcPath);
+    std::string fshaderSource = pReadShaderSource->runReadShaderSource(fshaderSrcPath);
     const char *vshaderSourceSrc = vshaderSource.c_str();
     const char *fshaderSourceSrc = fshaderSource.c_str();
 

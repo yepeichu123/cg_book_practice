@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    GLFWwindow* window = glfwCreateWindow(600, 600, "chapter4_2_drawCubeColor", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(600, 600, "chapter4_3_drawCubeRotate", NULL, NULL);
     glfwMakeContextCurrent(window);
 
     cout << "Enter GLEW initialization..." << endl;
