@@ -28,6 +28,9 @@ int width, height;
 float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
 
+// save image flag
+bool bsaveImg = false;
+
 // to use common functions
 shared_ptr<Utils> pUtils = make_shared<Utils>();
 
@@ -39,6 +42,9 @@ void init(GLFWwindow* window);
 
 // update the screen real-time
 void display(GLFWwindow* window, double currentTime);
+
+// modified window size
+void windowSizeCallback(GLFWwindow* win, int newWidth, int newHeight);
 
 
 int main(int argc, char** argv) {
@@ -66,6 +72,9 @@ int main(int argc, char** argv) {
     cout << "Initialize window..." << endl;
     // initialize the shader program
     init(window);
+
+    // auto-adjust window size
+    glfwSetWindowSizeCallback(window, windowSizeCallback);
 
     cout << "Enter loop..." << endl;
     // main shader loop
@@ -143,8 +152,6 @@ void init(GLFWwindow* window) {
 
 // update the screen real-time
 void display(GLFWwindow* window, double currentTime) {
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
     // clear the depth buffer
     glClear(GL_DEPTH_BUFFER_BIT);
     // to activate the shader program
@@ -172,4 +179,18 @@ void display(GLFWwindow* window, double currentTime) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    // save image 
+    if (!bsaveImg) {
+        string imgPath = "./result/drawCubeColor.png";
+        pUtils->runSaveImage(imgPath);
+        bsaveImg = true;
+        cout << "Saved as image in " << imgPath << endl;
+    }
+}
+
+void windowSizeCallback(GLFWwindow* win, int newWidth, int newHeight) {
+	aspect = (float)newWidth / (float)newHeight;
+	glViewport(0, 0, newWidth, newHeight);
+	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 }

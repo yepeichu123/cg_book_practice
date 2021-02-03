@@ -28,6 +28,10 @@ int width, height;
 float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat, tMat, rMat;
 
+// save image flag and index 
+GLuint indexSaveImg = 0;
+GLuint saveImgTimes = 0;
+
 // to use common functions
 shared_ptr<Utils> pUtils = make_shared<Utils>();
 
@@ -40,6 +44,8 @@ void init(GLFWwindow* window);
 // update the screen real-time
 void display(GLFWwindow* window, double currentTime);
 
+// auto-adjust window size
+void windowSizeCallback(GLFWwindow* win, int newWidth, int newHeight);
 
 int main(int argc, char** argv) {
     cout << "Enter GLFW initialization..." << endl;
@@ -66,6 +72,9 @@ int main(int argc, char** argv) {
     cout << "Initialize window..." << endl;
     // initialize the shader program
     init(window);
+
+    // auto-adjust window size
+    glfwSetWindowSizeCallback(window, windowSizeCallback);
 
     cout << "Enter loop..." << endl;
     // main shader loop
@@ -129,14 +138,12 @@ void init(GLFWwindow* window) {
     // 1.0472 radians = 60 degrees
     pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 
+    // Note:
+    // We delete the cube location because we should always change their location
     // initialize camera and cube position
     cameraX = 0.0f;
     cameraY = 0.0f;
     cameraZ = 8.0f;
-
-    cubeLocX = 0.0f;
-    cubeLocY = -2.0f;
-    cubeLocZ = 0.0f;
 
     setupVertices();
 }
@@ -162,7 +169,6 @@ void display(GLFWwindow* window, double currentTime) {
 
     // construct view matrix, model matrix and view-model matrix
     vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-    // mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
     mMat = tMat * rMat;
     mvMat = vMat * mMat;
 
@@ -179,4 +185,29 @@ void display(GLFWwindow* window, double currentTime) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    ++indexSaveImg;
+    // save image 
+    if (indexSaveImg == 5000 && saveImgTimes < 3) {
+        string imgPath = "./result/drawCubeRotate";
+        if (saveImgTimes == 0) {
+            imgPath += "_1.png";
+        }
+        else if (saveImgTimes == 1) {
+            imgPath += "_2.png";
+        }
+        else {
+            imgPath += "_3.png";
+        }
+        pUtils->runSaveImage(imgPath);
+        cout << "Saved as image in " << imgPath << endl;
+        indexSaveImg = 0;
+        ++saveImgTimes;
+    }
+}
+
+void windowSizeCallback(GLFWwindow* win, int newWidth, int newHeight) {
+	aspect = (float)newWidth / (float)newHeight;
+	glViewport(0, 0, newWidth, newHeight);
+	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 }

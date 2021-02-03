@@ -43,3 +43,17 @@
 
 > Note that we need glm to define the data type.
 
+
+## chapter 4
+
+1. drawCube
+
+2. drawCubeColor
+
+3. drawCubeRotate
+
+4. drawMultipleCubes
+
+5. drawMultipleCubesInstance
+
+> Note that we can modify the camera position to see more things.

@@ -44,8 +44,8 @@ glm::mat4 TransformPose::buildRotateY(const float& rad) {
 // construct rotation matrix along z axis
 glm::mat4 TransformPose::buildRotateZ(const float& rad) {
     glm::mat4 zrot = glm::mat4(
-        cos(rad), -sin(rad), 0.0, 0.0,
-        sin(rad), cos(rad), 0.0, 0.0,
+        cos(rad), sin(rad), 0.0, 0.0,
+        -sin(rad), cos(rad), 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
     );

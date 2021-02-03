@@ -24,3 +24,15 @@ add_executable(chap4_3_drawCubeRotate chap4_3_drawCubeRotate.cpp)
 target_link_libraries(chap4_3_drawCubeRotate
     ${LINK_LIBS}
 )
+
+# draw multiple moving colorful cubes
+add_executable(chap4_4_drawMultipleCubes chap4_4_drawMultipleCubes.cpp)
+target_link_libraries(chap4_4_drawMultipleCubes
+    ${LINK_LIBS}
+)
+
+# draw multiple cubes by instances
+add_executable(chap4_5_drawMultipleCubesInstance chap4_5_drawMultipleCubesInstance.cpp)
+target_link_libraries(chap4_5_drawMultipleCubesInstance
+    ${LINK_LIBS}
+)
