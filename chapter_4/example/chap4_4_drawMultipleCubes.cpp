@@ -114,7 +114,7 @@ void setupVertices() {
     };
 
     // vao is used to control the buffer(vbo)
-    glGenVertexArrays(1, vao);
+    glGenVertexArrays(numVAOs, vao);
     glBindVertexArray(vao[0]);
 
     // vbo is used as buffer and the first one buffer is activated

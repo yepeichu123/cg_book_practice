@@ -36,3 +36,9 @@ add_executable(chap4_5_drawMultipleCubesInstance chap4_5_drawMultipleCubesInstan
 target_link_libraries(chap4_5_drawMultipleCubesInstance
     ${LINK_LIBS}
 )
+
+# draw multiple geometries
+add_executable(chap4_6_drawMultipleGeometries chap4_6_drawMultipleGeometries.cpp)
+target_link_libraries(chap4_6_drawMultipleGeometries
+    ${LINK_LIBS}
+)

@@ -56,4 +56,4 @@
 
 5. drawMultipleCubesInstance
 
-> Note that we can modify the camera position to see more things.
+> Note that we can modify the camera position(bigger z) to see more things.
