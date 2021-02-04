@@ -1,5 +1,10 @@
 # cg_book_practice
 
+## blog
+
+Yepeichu——[《计算机图形学编程》笔记](https://blog.csdn.net/Y_Dumpling/article/details/113664178)
+
+
 ## chapter 2
 
 1. background 
@@ -26,7 +31,7 @@
 
 **if you want to run the test code, maybe you should install GLUT**:
 
-> sudo apt-get install freeglut3-dev
+>   
 
 
 **if you want to save the image, maybe you should install OpenCV 3**:
