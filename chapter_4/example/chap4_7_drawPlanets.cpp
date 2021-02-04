@@ -177,6 +177,7 @@ void display(GLFWwindow* window, double currentTime) {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_DEPTH_BUFFER_BIT);
     glClear(GL_COLOR_BUFFER_BIT);
+    // glEnable(GL_CULL_FACE);
     // to activate the shader program
     glUseProgram(renderingProgram);
 
@@ -206,6 +207,7 @@ void display(GLFWwindow* window, double currentTime) {
     // modify OpenGL setting and draw model
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    // glFrontFace(GL_CW);
     glDrawArrays(GL_TRIANGLES, 0, 18);
     mvStack.pop();
 
@@ -222,6 +224,7 @@ void display(GLFWwindow* window, double currentTime) {
     glEnableVertexAttribArray(0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    // glFrontFace(GL_CCW);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     mvStack.pop();
 
@@ -238,6 +241,7 @@ void display(GLFWwindow* window, double currentTime) {
     glEnableVertexAttribArray(0);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    // glFrontFace(GL_CCW);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // delete the redundancy

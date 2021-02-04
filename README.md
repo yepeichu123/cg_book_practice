@@ -58,4 +58,6 @@
 
 6. drawMultipleGeometries
 
+7. drawPlanets
+
 > Note that we can modify the camera position(bigger z) to see more things.

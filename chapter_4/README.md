@@ -50,3 +50,11 @@ We use two buffers to save cube and pyramid. Note that we should declear two mod
 
 ![drawMultipleGeometries](result/drawMultipleGeometries_1.png)
 
+
+7. **drawPlanets**
+
+In this section, we build a simulated solar system and two buffers are used.
+
+![drawPlanets_1](result/drawPlanets_1.png)
+![drawPlanets_2](result/drawPlanets_2.png)
+![drawPLanets_3](result/drawPlanets_3.png)
